@@ -29,7 +29,7 @@ for line in fileinput.input():
             else:
                 if divider > 2:
                     cols.append(pos)
-                divider  = 0
+                divider = 0
         lines.append( split_line(line, cols) )
         first_line = False
     else:
