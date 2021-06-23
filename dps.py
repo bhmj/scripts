@@ -4,7 +4,7 @@
 import fileinput
 import re
 
-MARGIN = 3
+MARGIN = 2
 
 # split line to columns
 def split_line(line, cols):
