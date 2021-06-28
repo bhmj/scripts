@@ -57,7 +57,7 @@ for l, line in enumerate(lines):
             if m.group(1) == m.group(3):
                 col = col.replace(m.group(1)+", "+m.group(3), m.group(1))
         col = re.sub(r'->', ' -> ', col)
-        col = re.sub(r' About a minute', '~1m', col)
+        col = re.sub(r'About a minute', '~1m', col)
         col = re.sub(r' seconds', 's', col)
         col = re.sub(r' second', 's', col)
         col = re.sub(r' minutes', 'm', col)
