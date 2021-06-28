@@ -37,9 +37,9 @@ for line in fileinput.input():
         lines.append( split_line(line, cols) )
 
 # cleanup logic
-port_pairs = re.compile(r'(\d{2,5})->(\d{2,5})')
-port_dups = re.compile(r'(\d{2,5}->\d{2,5}), (\d{2,5}->\d{2,5})')
-port_dups2 = re.compile(r'(\d{2,5}), (\d{2,5})')
+port_pairs = re.compile(r'(\d{2,5}(-\d{2,5})?)->(\d{2,5}(-\d{2,5})?)')
+port_dups = re.compile(r'(\d{2,5}(-\d{2,5})?->\d{2,5}(-\d{2,5})?), (\d{2,5}(-\d{2,5})?->\d{2,5}(-\d{2,5})?)')
+port_dups2 = re.compile(r'(\d{2,5}(-\d{2,5})?), (\d{2,5}(-\d{2,5})?)')
 for l, line in enumerate(lines):
     for c, col in enumerate(line):
         col = re.sub(r'…', '..', col)
@@ -48,16 +48,18 @@ for l, line in enumerate(lines):
         col = re.sub(r':::', '', col)
         col = re.sub(r'\/tcp', '', col)
         for m in re.finditer(port_pairs, col):
-            if m.group(1) == m.group(2):
-                col = col.replace(m.group(1)+"->"+m.group(2), m.group(1))
+            if m.group(1) == m.group(3):
+                col = col.replace(m.group(1)+"->"+m.group(3), m.group(1))
         for m in re.finditer(port_dups, col):
-            if m.group(1) == m.group(2):
-                col = col.replace(m.group(1)+", "+m.group(2), m.group(1))
+            if m.group(1) == m.group(4):
+                col = col.replace(m.group(1)+", "+m.group(4), m.group(1))
         for m in re.finditer(port_dups2, col):
-            if m.group(1) == m.group(2):
-                col = col.replace(m.group(1)+", "+m.group(2), m.group(1))
+            if m.group(1) == m.group(3):
+                col = col.replace(m.group(1)+", "+m.group(3), m.group(1))
         col = re.sub(r'->', ' -> ', col)
+        col = re.sub(r' About a minute', '~1m', col)
         col = re.sub(r' seconds', 's', col)
+        col = re.sub(r' second', 's', col)
         col = re.sub(r' minutes', 'm', col)
         col = re.sub(r' hours', 'h', col)
         col = re.sub(r' days', 'd', col)
