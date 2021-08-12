@@ -59,6 +59,8 @@ for l, line in enumerate(lines):
         col = re.sub(r'->', ' -> ', col)
         col = re.sub(r'About a minute', '~1m', col)
         col = re.sub(r' seconds', 's', col)
+        col = re.sub(r'Less than', '<', col)
+        col = re.sub(r'a second', '1s', col)
         col = re.sub(r' second', 's', col)
         col = re.sub(r' minutes', 'm', col)
         col = re.sub(r' hours', 'h', col)
