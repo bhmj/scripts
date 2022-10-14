@@ -80,6 +80,6 @@ for l, line in enumerate(lines):
 # output in table-like form
 for l, line in enumerate(lines):
     for c, col in enumerate(line):
-        print(col.ljust(col_with[c])),
-    print
+        print(col.ljust(col_with[c]), end=""),
+    print()
 
