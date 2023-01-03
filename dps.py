@@ -6,7 +6,7 @@ import re
 
 MARGIN = 2
 
-# split line to columns
+# Split line to columns
 def split_line(line, cols):
     split = []
     for i, col in enumerate(cols):
@@ -15,6 +15,29 @@ def split_line(line, cols):
         else:
             split.append(line[col:].strip())
     return split
+
+# Merges port intervals. Expects the final call with port == "" to properly finalize merge procedure.
+# args:
+#   joined : resulting array
+#   first  : current first interval bound
+#   last   : current last interval bound
+#   port   : port or port interval (8080 or 8080-8082)
+# returns:
+#   first, last, joined : new values
+def merge_intervals(joined, first, last, port):
+    interval = port.split("-")
+    if len(interval) < 2:
+        if first:
+            joined.append(first + "-" + last)
+        return "", "", joined + [port]
+    else:
+        left, right = interval[0], interval[1]
+        if last and int(last) + 1 == int(left):
+            return first, right, joined
+        else:
+            if first:
+                joined.append(first + "-" + last)
+            return left, right, joined
 
 cols = []
 lines = []
@@ -37,27 +60,43 @@ for line in fileinput.input():
         lines.append( split_line(line, cols) )
 
 # cleanup logic
-port_pairs = re.compile(r'(\d{2,5}(-\d{2,5})?)->(\d{2,5}(-\d{2,5})?)')
-port_dups = re.compile(r'(\d{2,5}(-\d{2,5})?->\d{2,5}(-\d{2,5})?), (\d{2,5}(-\d{2,5})?->\d{2,5}(-\d{2,5})?)')
-port_dups2 = re.compile(r'(\d{2,5}(-\d{2,5})?), (\d{2,5}(-\d{2,5})?)')
+
+# search patterns
+ports_pattern = "\d{2,5}(-\d{2,5})?" # 8080 or 8080-8082
+port_mapping_pattern = "(" + ports_pattern + ")->(" + ports_pattern + ")"
+port_mapping = re.compile(port_mapping_pattern)
 for l, line in enumerate(lines):
     for c, col in enumerate(line):
+        # simple replacements
         col = re.sub(r'…', '..', col)
         col = re.sub(r'0.0.0.0:', '', col)
         col = re.sub(r'127.0.0.1:', '', col)
         col = re.sub(r':::', '', col)
         col = re.sub(r'\/tcp', '', col)
-        for m in re.finditer(port_pairs, col):
+
+        # replace port mapping duplicates:
+        # 8080->8080  becomes  8080
+        # 8080-8082->8080-8082  becomes  8080-8082
+        for m in re.finditer(port_mapping, col):
             if m.group(1) == m.group(3):
                 col = col.replace(m.group(1)+"->"+m.group(3), m.group(1))
-        for m in re.finditer(port_dups, col):
-            if m.group(1) == m.group(4):
-                col = col.replace(m.group(1)+", "+m.group(4), m.group(1))
-        for m in re.finditer(port_dups2, col):
-            if m.group(1) == m.group(3):
-                col = col.replace(m.group(1)+", "+m.group(3), m.group(1))
+
+        # merge intervals: 8080-8082, 8082-8090  becomes  8080-8090
+        port_entries = col.split(", ")
+        if len(port_entries) > 1:
+            deduplicated_ports = list(dict.fromkeys(port_entries))
+
+            first, last = "", ""
+            joined_ports = []
+            for i, port in enumerate(deduplicated_ports + [""]):
+                first, last, joined_ports = merge_intervals(joined_ports, first, last, port)
+
+            col = ", ".join(filter(None, joined_ports))
+
+        # more simple replacements
         col = re.sub(r'->', ' -> ', col)
         col = re.sub(r'About a minute', '~1m', col)
+        col = re.sub(r'About an hour', '~1h', col)
         col = re.sub(r' seconds', 's', col)
         col = re.sub(r'Less than', '<', col)
         col = re.sub(r'a second', '1s', col)
@@ -82,4 +121,3 @@ for l, line in enumerate(lines):
     for c, col in enumerate(line):
         print(col.ljust(col_with[c]), end=""),
     print()
-
