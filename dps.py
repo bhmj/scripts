@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import fileinput
-import re
+import fileinput, re
 
 MARGIN = 2
 
@@ -16,7 +15,7 @@ def split_line(line, cols):
             split.append(line[col:].strip())
     return split
 
-# Merges port intervals. Expects the final call with port == "" to properly finalize merge procedure.
+# Appends port interval. Expects the final call with port == "" to properly finalize merge procedure.
 # args:
 #   joined : resulting array
 #   first  : current first interval bound
@@ -24,7 +23,7 @@ def split_line(line, cols):
 #   port   : port or port interval (8080 or 8080-8082)
 # returns:
 #   first, last, joined : new values
-def merge_intervals(joined, first, last, port):
+def append_interval(joined, first, last, port):
     interval = port.split("-")
     if len(interval) < 2:
         if first:
@@ -38,6 +37,14 @@ def merge_intervals(joined, first, last, port):
             if first:
                 joined.append(first + "-" + last)
             return left, right, joined
+
+# Merges port intervals: 8080-8082, 8082-8090 becomes 8080-8090.
+def merge_intervals(ports):
+    first, last = "", ""
+    joined_ports = []
+    for port in ports + [""]:
+        first, last, joined_ports = append_interval(joined_ports, first, last, port)
+    return joined_ports
 
 cols = []
 lines = []
@@ -85,12 +92,7 @@ for l, line in enumerate(lines):
         port_entries = col.split(", ")
         if len(port_entries) > 1:
             deduplicated_ports = list(dict.fromkeys(port_entries))
-
-            first, last = "", ""
-            joined_ports = []
-            for i, port in enumerate(deduplicated_ports + [""]):
-                first, last, joined_ports = merge_intervals(joined_ports, first, last, port)
-
+            joined_ports = merge_intervals(deduplicated_ports)
             col = ", ".join(filter(None, joined_ports))
 
         # more simple replacements
