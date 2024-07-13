@@ -11,7 +11,7 @@ some of the <targets> are:
   list                 - list scripts
   install              - install scripts (NEED ROOT ACCESS)
 
-NB: `sudo make install` for actual installation
+NB: `sudo -u $$USER make install` for actual installation
 
 endef
 export USAGE
@@ -39,6 +39,9 @@ list:
 	echo "$$LIST"
 
 install:
+	curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	cp .vimrc $HOME/
+	vim +PlugInstall +qall
 	echo "docker ps -a $$DAT | python3 $$PWD/dps.py" > /usr/local/bin/dps
 	echo "docker logs $$DAT" > /usr/local/bin/dlog
 	echo "docker stop $$DAT" 2>/dev/null > /usr/local/bin/dstop && echo "docker rm $$DAT" 2>/dev/null >> /usr/local/bin/dstop
