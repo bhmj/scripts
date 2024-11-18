@@ -69,7 +69,7 @@ for line in fileinput.input():
 # cleanup logic
 
 # search patterns
-ports_pattern = "\d{2,5}(-\d{2,5})?" # 8080 or 8080-8082
+ports_pattern = r"\d{2,5}(-\d{2,5})?" # 8080 or 8080-8082
 port_mapping_pattern = "(" + ports_pattern + ")->(" + ports_pattern + ")"
 port_mapping = re.compile(port_mapping_pattern)
 for l, line in enumerate(lines):
