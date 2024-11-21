@@ -43,17 +43,23 @@ def merge_intervals(ports):
     first, last = "", ""
     joined_ports = []
     for port in ports + [""]:
-        first, last, joined_ports = append_interval(joined_ports, first, last, port)
+        if "->" in port:
+            joined_ports.append(port)
+        else:
+            first, last, joined_ports = append_interval(joined_ports, first, last, port)
     return joined_ports
 
 cols = []
 lines = []
+image_col_num = 0
 first_line = True
 for line in fileinput.input():
     if first_line:
         # find column starting positions
         divider = 99
         for pos,c in enumerate(line):
+            if line[pos:].startswith("IMAGE"): # determine IMAGE column
+                image_col_num = len(cols)
             if c == ' ':
                 divider = divider + 1
             else:
@@ -107,6 +113,15 @@ for l, line in enumerate(lines):
         col = re.sub(r' hours', 'h', col)
         col = re.sub(r' days', 'd', col)
         col = re.sub(r' weeks', 'w', col)
+        
+        # limit image length
+        max_image_length = 50
+        if c == image_col_num and len(col.strip()) > max_image_length:
+            col = col.strip()
+            ll = int(len(col) / 2)
+            delta = int((len(col)-max_image_length) / 2)
+            col = col[:ll-delta] + "[..]" + col[ll+delta:]
+
         lines[l][c] = col.strip()
 
 # dense columns
