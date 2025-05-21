@@ -85,6 +85,7 @@ for l, line in enumerate(lines):
         col = re.sub(r'0.0.0.0:', '', col)
         col = re.sub(r'127.0.0.1:', '', col)
         col = re.sub(r':::', '', col)
+        col = re.sub(r'\[::\]:', '', col)
         col = re.sub(r'\/tcp', '', col)
 
         # replace port mapping duplicates:
