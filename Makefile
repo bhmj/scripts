@@ -11,7 +11,7 @@ some of the <targets> are:
   list                 - list scripts
   install              - install scripts (NEED ROOT ACCESS)
 
-NB: `sudo -u $$USER make install` for actual installation
+NB: `sudo make install` for actual installation
 
 endef
 export USAGE
