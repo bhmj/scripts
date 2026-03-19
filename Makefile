@@ -28,6 +28,7 @@ Installed in /usr/local/bin
 	kexec  = kubectl exec -it
 	klog   = kubectl logs
 	kstop  = kubectl delete pod
+	mksh   = create bash script and open it in editor
 
 endef
 export LIST
@@ -41,6 +42,7 @@ list:
 install:
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	cp .vimrc $$HOME/
+	cp mksh /usr/local/bin
 	vim +PlugInstall +qall
 	echo "docker ps -a $$DAT | python3 $$PWD/dps.py" > /usr/local/bin/dps
 	echo "docker logs $$DAT" > /usr/local/bin/dlog
@@ -49,13 +51,14 @@ install:
 	echo "kubectl exec -it $$DAT" > /usr/local/bin/kexec
 	echo "kubectl logs $$DAT" > /usr/local/bin/klog
 	echo "kubectl delete pod $$DAT" > /usr/local/bin/kstop
-	chmod +x /usr/local/bin/dps
-	chmod +x /usr/local/bin/dlog
-	chmod +x /usr/local/bin/dstop
-	chmod +x /usr/local/bin/kpods
-	chmod +x /usr/local/bin/kexec
-	chmod +x /usr/local/bin/klog
-	chmod +x /usr/local/bin/kstop
+	chmod u+x /usr/local/bin/dps
+	chmod u+x /usr/local/bin/dlog
+	chmod u+x /usr/local/bin/dstop
+	chmod u+x /usr/local/bin/kpods
+	chmod u+x /usr/local/bin/kexec
+	chmod u+x /usr/local/bin/klog
+	chmod u+x /usr/local/bin/kstop
+	chmod u+x /usr/local/bin/mksh
 
 .PHONY: help list install
 
