@@ -4,7 +4,7 @@ Brief:
 `make help`
 
 Installation:  
-`sudo make install`
+`make install`
 
 ### dps
 
